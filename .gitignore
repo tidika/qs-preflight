@@ -17,3 +17,13 @@ fde-project-2026-08.pdf
 
 # Private research notes, not part of the published project
 docs/findings.md
+
+# Credentials and account recovery material. Never commit any of this.
+*Recovery-Codes*
+*recovery-codes*
+*.pypirc
+.pypirc
+*.pem
+*.key
+secrets.*
+.env.*
