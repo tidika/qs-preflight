@@ -43,7 +43,7 @@ from .evidence import (
     ToolRecord,
 )
 
-USER_AGENT = "qs-preflight/0.1 (+https://github.com/OWNER/qs-preflight)"
+USER_AGENT = "qs-preflight/0.1 (+https://github.com/tidika/qs-preflight)"
 
 # Quick does not advertise which MCP revision it speaks, and sends no
 # protocolVersion in `_meta`. This is the revision claimed on initialize;

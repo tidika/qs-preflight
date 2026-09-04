@@ -127,8 +127,6 @@ One tool over the documented cap costs the entire integration, reported as `Crea
 
 **Read and write intent is inferred from tool names.** An undocumented step in the connector wizard classifies every tool as Read or Write, and read-only operations named `*_audit` and `*_export` were classified as writes, requiring user approval on every invocation.
 
-Full write-up, with evidence: [`docs/findings.md`](docs/findings.md).
-
 ## Limitations
 
 Stated plainly, because a checker that overstates its confidence is worse than none.

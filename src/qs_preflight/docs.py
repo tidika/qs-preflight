@@ -8,10 +8,10 @@ Anything still marked UNVERIFIED fails `tests/test_evidence_discipline.py`, and
 so fails the build. That is deliberate: a compatibility checker whose citations
 were guessed would refute its own premise.
 
-Some entries additionally carry `verified_against_quick` -- meaning the
-behaviour was observed in a live Amazon Quick account, not merely read. Where
-observation and documentation disagree, the observation is recorded here and the
-discrepancy is written up in docs/findings.md.
+Some entries additionally carry ``verified_against_quick``, meaning the behaviour
+was observed against a live Amazon Quick account rather than read from
+documentation. Where observation and documentation disagree, the observed
+behaviour is recorded here and the rule reports it in preference.
 
 Source page read 2026-08-24 and re-verified 2026-08-27. Note the product prose
 now reads "Amazon Quick"; the /quicksuite/ path mirrors identical content.

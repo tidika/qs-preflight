@@ -68,7 +68,7 @@ class ToolAnnotationsRule(Rule):
                 f"all {len(ev.tools)} tools declare annotations",
                 [
                     "note: whether Quick honours annotations rather than inferring from "
-                    "the tool name is untested — see docs/findings.md F11."
+                    "the tool name is untested."
                 ],
             )
 
@@ -96,8 +96,8 @@ class ToolAnnotationsRule(Rule):
                 "verb Quick was observed classifying as a write. Writes default to",
                 "'Always ask', so every call interrupts the user for approval.",
                 "",
-                "Undocumented behaviour, observed against a live account on 2026-08-27.",
-                "See docs/findings.md F11.",
+                "Undocumented behaviour, observed against a live Amazon Quick",
+                "account on 2026-08-27.",
             ],
             remediation=(
                 "Declare annotations.readOnlyHint on read-only tools, and consider naming "

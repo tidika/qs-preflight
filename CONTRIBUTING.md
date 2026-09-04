@@ -107,5 +107,6 @@ Adding a violation there is usually the easiest way to prove a new rule fires.
 
 If Amazon Quick behaves differently from its documentation, that is worth
 reporting even without a patch. Open an issue including the endpoint behaviour
-observed, the date, and the region if known. Findings confirmed against a live
-account are recorded in `docs/findings.md`.
+observed, the date, and the region if known. Behaviour confirmed against a live
+account is recorded in the rule's citation entry in `docs.py`, alongside the
+documentation it contradicts.

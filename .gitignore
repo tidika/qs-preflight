@@ -14,3 +14,6 @@ htmlcov/
 
 # Private FDE programme material -- not part of the project
 fde-project-2026-08.pdf
+
+# Private research notes, not part of the published project
+docs/findings.md
