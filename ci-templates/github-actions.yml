@@ -1,0 +1,43 @@
+# Fail a pull request when a change makes an MCP server incompatible with
+# Amazon Quick.
+#
+# Copy this file into .github/workflows/ in the repository that contains your
+# MCP server, and set MCP_SERVER_URL to a deployed instance the runner can
+# reach.
+#
+# The check exits 1 when a blocker is found, which fails the job. Use
+# --fail-on warn to fail on warnings as well.
+
+name: Amazon Quick MCP compatibility
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install qs-preflight
+        run: pip install qs-preflight
+
+      - name: Check MCP server compatibility
+        env:
+          # Only required if the server needs authorization. Store it as a
+          # repository secret; never inline a token in this file.
+          QS_PREFLIGHT_TOKEN: ${{ secrets.MCP_BEARER_TOKEN }}
+        run: qs-preflight check "${{ vars.MCP_SERVER_URL }}"
+
+      # Optional: attach the report to the job summary so reviewers can read the
+      # findings without opening the log.
+      - name: Publish report to the job summary
+        if: always()
+        env:
+          QS_PREFLIGHT_TOKEN: ${{ secrets.MCP_BEARER_TOKEN }}
+        run: |
+          qs-preflight check "${{ vars.MCP_SERVER_URL }}" --markdown \
+            >> "$GITHUB_STEP_SUMMARY" || true

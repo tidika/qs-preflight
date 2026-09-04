@@ -1,0 +1,61 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "qs-preflight"
+version = "0.1.0.dev0"
+description = "Preflight checker for MCP servers you intend to connect to Amazon Quick Suite"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Tochi Idika" }]
+keywords = ["mcp", "amazon-quick-suite", "quicksight", "aws", "preflight", "bi"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+  "httpx>=0.27",
+  "jsonschema>=4.21",
+  "rich>=13.7",
+  "mcp>=1.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.23", "ruff>=0.5"]
+
+[project.scripts]
+qs-preflight = "qs_preflight.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/OWNER/qs-preflight"
+Issues = "https://github.com/OWNER/qs-preflight/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/qs_preflight"]
+
+# The source distribution is uploaded to PyPI and cannot be withdrawn once
+# published, so what it contains is stated explicitly rather than inferred from
+# .gitignore. The FDE brief is private programme material and must never ship.
+[tool.hatch.build.targets.sdist]
+exclude = [
+  "fde-project-2026-08.pdf",
+  "dist",
+  ".venv",
+  ".pytest_cache",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "slow: spins up the mock server over real HTTP",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
