@@ -33,7 +33,7 @@ from .findings import Severity
 from .probe import DEFAULT_PROTOCOL_VERSION, probe
 from .rules.base import REGISTRY
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 
 # Preferred over --bearer-token: a flag lands in shell history, in `ps` output,
 # and in CI logs that echo their commands. The environment variable does not.

@@ -229,6 +229,9 @@ def _discover_oauth(target: str, timeout: float) -> OAuthDocs:
                     part = part.strip()
                     if part.lower().startswith("resource_metadata="):
                         docs.resource_metadata_url = part.split("=", 1)[1].strip('"')
+        except httpx.TransportError as exc:
+            docs.fetch_errors["challenge"] = f"{type(exc).__name__}: {exc}"
+            docs.transport_failed = True
         except Exception as exc:
             docs.fetch_errors["challenge"] = f"{type(exc).__name__}: {exc}"
 
@@ -360,6 +363,9 @@ def probe(
     ev.oauth = _discover_oauth(target, timeout=min(timeout, 20.0))
     ev.oauth_hosts = _resolve_oauth_hosts(ev.oauth)
 
+    if ev.oauth.transport_failed:
+        ev.network_error = ev.oauth.fetch_errors.get("challenge", "target unreachable")
+
     client = _Client(target, timeout, bearer_token=bearer_token)
     try:
         payload, _ = client.call(
@@ -421,6 +427,11 @@ def probe(
                         "tools/call", elapsed, ok=bool(payload and "result" in payload)
                     )
                 )
+    except httpx.TransportError as exc:
+        # DNS, TCP, TLS or proxy failure: nothing was learned about the server.
+        ev.network_error = f"{type(exc).__name__}: {exc}"
+        ev.probe_errors["probe"] = ev.network_error
+        ev.transport = "unreachable"
     except Exception as exc:
         ev.probe_errors["probe"] = f"{type(exc).__name__}: {exc}"
     finally:

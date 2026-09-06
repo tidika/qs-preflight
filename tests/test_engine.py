@@ -79,3 +79,37 @@ def test_findings_are_ordered_worst_first(evidence):
     assert statuses == sorted(
         statuses, key=lambda s: ["FAIL", "ERROR", "SKIP", "PASS"].index(s.value)
     )
+
+
+def test_unreachable_target_is_inconclusive_not_non_compliant():
+    """A target that could not be contacted must not be reported as failing
+    compliance checks.
+
+    Empty evidence is not evidence of absence. Before this was handled, a probe
+    blocked by an egress proxy produced two blockers, "no Protected Resource
+    Metadata found" and "unsupported transport: unknown", telling the operator
+    their server was non-compliant when it was merely unreachable.
+    """
+    ev = Evidence(target="https://blocked.example/mcp")
+    ev.network_error = "ProxyError: 403 Forbidden"
+
+    report = run_rules(ev)
+
+    assert not report.blockers, "an unreachable target must produce no blockers"
+    assert len(report.findings) == 1, "one result, not one per rule"
+
+    finding = report.findings[0]
+    assert finding.status is Status.ERROR
+    assert finding.rule_id == "target-unreachable"
+    assert "ProxyError" in " ".join(finding.detail)
+    assert report.exit_code() == 2, "could not tell is exit 2, not exit 1"
+
+
+def test_a_reachable_target_still_evaluates_every_rule(evidence):
+    """The short-circuit must not fire when the probe succeeded."""
+    import qs_preflight.rules  # noqa: F401
+
+    report = run_rules(evidence(tool_count=142))
+    assert len(report.findings) > 1
+    assert any(f.rule_id == "tool-count" for f in report.findings)
+    assert all(f.rule_id != "target-unreachable" for f in report.findings)

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from .evidence import Evidence
-from .findings import Report, Status
+from .findings import Finding, Report, Severity, Status
 from .rules.base import REGISTRY, Rule
 
 # Failures first, then errors, then skips, then passes -- so the terminal shows
@@ -12,8 +12,48 @@ _STATUS_ORDER = {"FAIL": 0, "ERROR": 1, "SKIP": 2, "PASS": 3}
 _SEVERITY_ORDER = {"BLOCKER": 0, "WARN": 1, "INFO": 2}
 
 
+def _unreachable(ev: Evidence) -> Finding:
+    """A single inconclusive result for a target that could not be contacted."""
+    return Finding(
+        rule_id="target-unreachable",
+        title="The target could not be contacted",
+        severity=Severity.BLOCKER,
+        status=Status.ERROR,
+        headline=f"could not reach {ev.target}",
+        doc_url="",
+        detail=[
+            str(ev.network_error),
+            "",
+            "No checks were run, because nothing was learned about the server.",
+            "This is not a finding about the server itself.",
+            "",
+            "Common causes: an egress proxy or firewall blocking the request, a",
+            "hostname that does not resolve, or the wrong endpoint path.",
+        ],
+        remediation=(
+            "Confirm the URL is reachable from this machine, for example with "
+            "curl, and that any proxy in the path permits it."
+        ),
+    )
+
+
 def run_rules(ev: Evidence, rules: list[type[Rule]] | None = None) -> Report:
     findings = []
+
+    if ev.network_error:
+        # The target was never contacted, so no rule holds evidence about it.
+        # Evaluating them anyway would report empty evidence as absent metadata
+        # and an unsupported transport, telling the operator their server is
+        # non-compliant when it is merely unreachable. A checker that cannot
+        # distinguish "failed" from "could not tell" is worse than none.
+        #
+        # One finding rather than one per rule: repeating the same connection
+        # error thirteen times buries the single fact that matters.
+        return Report(
+            target=ev.target,
+            findings=[_unreachable(ev)],
+            probe_errors=dict(ev.probe_errors),
+        )
 
     for rule_cls in rules if rules is not None else REGISTRY:
         rule = rule_cls()

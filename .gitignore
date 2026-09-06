@@ -27,3 +27,5 @@ docs/findings.md
 *.key
 secrets.*
 .env.*
+qs-preflight-mcp-compatibility-checker/TestPyPI-Recovery-Codes-tidika2026-2026-09-04T20_33_41.261127.txt
+docs

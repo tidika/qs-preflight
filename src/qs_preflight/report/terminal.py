@@ -67,11 +67,16 @@ def render(report: Report, console: Console | None = None) -> None:
     symbol, dash, arrow = _symbols(console)
     findings = report.findings
 
+    # A run that never reached the target evaluated no rules, so reporting a
+    # rule count would be misleading.
+    inconclusive = len(findings) == 1 and findings[0].rule_id == "target-unreachable"
+    subtitle = "" if inconclusive else f" {dash} {len(findings)} rules"
+
     console.print()
     console.print(
         Text.assemble(
             ("  Amazon Quick MCP Preflight", "bold"),
-            (f" {dash} {len(findings)} rules", "dim"),
+            (subtitle, "dim"),
         )
     )
     console.print(Text(f"  {report.target}", style="dim"))

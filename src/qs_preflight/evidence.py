@@ -57,6 +57,9 @@ class OAuthDocs:
     openid_configuration: dict[str, Any] | None = None
 
     fetch_errors: dict[str, str] = field(default_factory=dict)
+    # True when discovery failed at the transport layer rather than
+    # returning a 404. An unreachable document is not an absent one.
+    transport_failed: bool = False
 
     @property
     def metadata(self) -> dict[str, Any] | None:
@@ -116,9 +119,16 @@ class Evidence:
 
     tls: TlsInfo | None = None
 
-    # Anything the probe could not complete. Drives ERROR findings and exit 2,
-    # so a checker that could not reach the server never reports a clean pass.
+    # Anything the probe could not complete.
     probe_errors: dict[str, str] = field(default_factory=dict)
+
+    # Set when the target could not be contacted at all: DNS failure, refused
+    # connection, timeout, or an egress proxy refusing the request. Distinct
+    # from a server that answered and was found wanting. Rules must not draw
+    # conclusions from evidence that was never collected, so this short-circuits
+    # the run into a single inconclusive result rather than reporting empty
+    # evidence as absent metadata and an unsupported transport.
+    network_error: str | None = None
 
     def has(self, key: str) -> bool:
         """Did the probe actually gather this? Drives `Rule.requires` -> SKIP."""
