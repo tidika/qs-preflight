@@ -1,13 +1,17 @@
-"""Public resolvability of OAuth endpoints.
+"""Reachability of OAuth endpoints.
 
-An MCP server may be private and reached through an Amazon Quick VPC connection.
-Its authorization server may not: AWS states that "the OAuth endpoints used by
-the MCP server must be reachable over the public internet... Private OAuth
-providers are not supported."
+By default, Amazon Quick reaches an authorization server over the public
+internet, so an endpoint resolving only to a private address will fail.
 
-A private server behind a private identity provider is a common architecture and
-is not supported. Nothing in the MCP specification requires a publicly reachable
-authorization server; this constraint originates with Amazon Quick.
+That default can now be changed. Amazon Quick supports an auth-server VPC
+connection, configured independently of the connection used for the MCP server
+itself, which routes OAuth traffic through a VPC. A privately hosted
+authorization server is therefore supported, provided that connection is
+configured and its DNS resolver endpoints can resolve the hostname.
+
+This rule reports a privately resolving endpoint because the default
+configuration will not reach it, and states the remedy. It cannot determine from
+outside whether an auth-server VPC connection has been configured.
 """
 
 from __future__ import annotations
@@ -39,14 +43,18 @@ class OAuthReachabilityRule(Rule):
                         for h in private
                     ],
                     "",
-                    "Your MCP server may be private and reached over a VPC connection.",
-                    "Its identity provider may not be. Private OAuth providers are",
-                    "unsupported, and this is the failure most people do not see coming.",
+                    "Amazon Quick reaches OAuth endpoints over the public internet unless",
+                    "an auth-server VPC connection is configured on the integration. This",
+                    "check cannot see that setting, so treat this as a prompt to confirm",
+                    "it rather than a certain failure.",
                 ],
                 remediation=(
-                    "Expose the authorization and token endpoints on the public internet, "
-                    "or move to an identity provider that already is. The MCP server "
-                    "itself can stay private."
+                    "Either expose the authorization and token endpoints on the public "
+                    "internet, or configure an auth-server VPC connection on the "
+                    "integration so that Amazon Quick reaches them through your VPC. That "
+                    "connection is independent of the one used for the MCP server, and "
+                    "its DNS resolver endpoints must resolve the authorization server "
+                    "hostname."
                 ),
             )
 

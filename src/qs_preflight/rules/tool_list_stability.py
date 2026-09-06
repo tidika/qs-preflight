@@ -10,10 +10,11 @@ fetches are weak evidence, since a list that changes hourly will appear stable
 across two calls seconds apart. A passing result therefore reports that no drift
 was observed, not that the list is stable.
 
-AWS states that picking up server-side changes requires deleting and recreating
-the integration. The console also presents a Sync control whose behaviour has not
-been verified; the documented remedy is reported as AWS states it, and the
-control is noted rather than recommended.
+Custom connectors do not update on their own. AWS documents MCP Sync as the
+remedy: opening the connector details page and choosing Sync refreshes the tool
+list without recreating the integration. Built-in connectors sync automatically.
+Triggering a sync initiates re-authorization, so a server that has begun
+requiring scopes which were not granted originally will fail to sync.
 """
 
 from __future__ import annotations
@@ -46,8 +47,9 @@ class ToolListStabilityRule(Rule):
             detail = ["two consecutive fetches returned an identical list, in the same order"]
             if ev.server_capabilities.get("tools", {}).get("listChanged"):
                 detail.append(
-                    "note: the server declares the listChanged capability. Quick does not "
-                    "consume list-change notifications, so any later change is invisible to it."
+                    "note: the server declares the listChanged capability. Amazon Quick "
+                    "does not consume list-change notifications, so a later change is "
+                    "visible to it only when a connector owner triggers a manual sync."
                 )
             return self.passed(f"{len(first)} tools, unchanged across two fetches", detail)
 
@@ -83,8 +85,10 @@ class ToolListStabilityRule(Rule):
             f"tool list changed between two fetches seconds apart",
             detail=detail,
             remediation=(
-                "Make the exposed set deterministic. AWS states that picking up "
-                "server-side changes requires deleting and recreating the integration; "
-                "the console also offers a Sync control whose behaviour is unverified."
+                "Make the exposed set deterministic. Where the list is intended to "
+                "change, the connector owner must open the connector details page and "
+                "choose Sync to pick the changes up. Note that a sync triggers "
+                "re-authorization and will fail if the server has begun requiring scopes "
+                "that were not granted originally."
             ),
         )

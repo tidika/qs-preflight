@@ -13,8 +13,10 @@ was observed against a live Amazon Quick account rather than read from
 documentation. Where observation and documentation disagree, the observed
 behaviour is recorded here and the rule reports it in preference.
 
-Source page read 2026-08-24 and re-verified 2026-08-27. Note the product prose
-now reads "Amazon Quick"; the /quicksuite/ path mirrors identical content.
+Source page first read 2026-08-24, re-verified 2026-08-27 and 2026-09-05. AWS
+revised two limitations between the first and last of those dates, which the
+stored quotes made detectable. Each entry therefore carries its own retrieval
+date rather than relying on a single date for the file.
 """
 
 from __future__ import annotations
@@ -88,13 +90,15 @@ CITATIONS: dict[str, Citation] = {
     ),
     "tool-list-stability": Citation(
         A_LIMITS,
-        "2026-08-24",
-        "Tool lists remain static after initial registration. To pick up server-side tool "
-        "changes, you must delete the integration and recreate it.",
+        "2026-09-05",
+        "For custom MCP connectors, tool lists do not update automatically. To pick up "
+        "server-side tool changes, open the connector details page and choose Sync. "
+        "Built-in MCP connectors sync automatically.",
         verified_against_quick=(
-            "Untested. The console exposes a Sync button on the connector, which may or "
-            "may not refresh the tool list. The documented delete-and-recreate remedy is "
-            "reported as AWS states it, not as verified."
+            "A Sync control was observed on the connector page on 2026-08-27, before AWS "
+            "documented it. The documentation was updated between 2026-08-24 and "
+            "2026-09-05: the earlier text stated that picking up tool changes required "
+            "deleting and recreating the integration."
         ),
     ),
     "oauth-discovery-path": Citation(
@@ -123,10 +127,17 @@ CITATIONS: dict[str, Citation] = {
     ),
     "oauth-reachability": Citation(
         A_LIMITS,
-        "2026-08-24",
-        "For MCP servers that you reach through a VPC connection, the OAuth endpoints used "
-        "by the MCP server must be reachable over the public internet. Private OAuth "
-        "providers are not supported.",
+        "2026-09-05",
+        "For MCP servers that you reach through a VPC connection, DNS resolution for the "
+        "authorization server hostname must be reachable from the auth-server VPC "
+        "connection's subnets and DNS resolver endpoints. [...] If you do not configure an "
+        "auth-server VPC connection, the OAuth endpoints must be reachable over the public "
+        "internet.",
+        verified_against_quick=(
+            "The documentation was updated between 2026-08-24 and 2026-09-05. The earlier "
+            "text stated that private OAuth providers were not supported. An auth-server "
+            "VPC connection (AuthVpcConnectionArn) now permits one."
+        ),
     ),
     "header-independence": Citation(
         A_LIMITS,
